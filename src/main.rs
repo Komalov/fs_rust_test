@@ -1,21 +1,20 @@
+use clap::Parser;
 use std::{fs, io};
 
-fn get_user_message() -> String {
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    #[arg(short, long)]
+    path: String,
+}
+
+fn get_user_message(path: &String) -> String {
     let mut message = String::new();
-    println!("This will be attached to the file");
+    println!("This will be attached to the file {path}");
     io::stdin()
         .read_line(&mut message)
         .expect("Unable to read line");
     message.trim().to_owned()
-}
-
-fn get_file() -> Result<String, io::Error> {
-    println!("Add path to file you want to edit. If such file doesn't exist, it will be created");
-
-    let mut file_path = String::new();
-    io::stdin().read_line(&mut file_path)?;
-
-    Ok(file_path.trim().to_owned())
 }
 
 fn ask_user_for_messages(path: &String) {
@@ -23,7 +22,7 @@ fn ask_user_for_messages(path: &String) {
 
     loop {
         let last_message: String;
-        last_message = get_user_message();
+        last_message = get_user_message(&path);
         if last_message == finish_command {
             println!("Bye!");
             return;
@@ -58,7 +57,7 @@ fn print_file(path: &String) {
 }
 
 fn main() {
-    let file_path = get_file().expect("Unable to create file");
+    let file_path = Args::parse().path;
     ask_user_for_messages(&file_path);
     print_file(&file_path);
 }
